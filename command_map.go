@@ -1,10 +1,9 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
+
+	"github.com/DryHop2/pokedexcli/internal/pokeapi"
 )
 
 func commandMap(cfg *Config) error {
@@ -13,29 +12,38 @@ func commandMap(cfg *Config) error {
 		url = *cfg.NextLocationAreaURL
 	}
 
-	resp, err := http.Get(url)
-	if err != nil {
-		return fmt.Errorf("failed to fetch location areas: %w", err)
-	}
-	defer resp.Body.Close()
+	// resp, err := http.Get(url)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to fetch location areas: %w", err)
+	// }
+	// defer resp.Body.Close()
 
-	body, err := io.ReadAll(resp.Body)
+	// body, err := io.ReadAll(resp.Body)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to read response body: %w", err)
+	// }
+
+	// var locationData pokeapi.LocationAreaResponse
+	// err = json.Unmarshal(body, &locationData)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to parse JSON: %w", err)
+	// }
+
+	// for _, area := range locationData.Results {
+	// 	fmt.Println(area.Name)
+	// }
+
+	data, err := pokeapi.GetLocationAreas(cfg.Cache, url)
 	if err != nil {
-		return fmt.Errorf("failed to read response body: %w", err)
+		return err
 	}
 
-	var locationData LocationAreaResponse
-	err = json.Unmarshal(body, &locationData)
-	if err != nil {
-		return fmt.Errorf("failed to parse JSON: %w", err)
-	}
+	cfg.NextLocationAreaURL = data.Next
+	cfg.PreviousLocationAreaURL = data.Previous
 
-	for _, area := range locationData.Results {
+	for _, area := range data.Results {
 		fmt.Println(area.Name)
 	}
-
-	cfg.NextLocationAreaURL = locationData.Next
-	cfg.PreviousLocationAreaURL = locationData.Previous
 
 	return nil
 }
@@ -48,30 +56,38 @@ func commandMapb(cfg *Config) error {
 
 	url := *cfg.PreviousLocationAreaURL
 
-	resp, err := http.Get(url)
-	if err != nil {
-		return fmt.Errorf("failed to fetch location areas: %w", err)
-	}
-	defer resp.Body.Close()
+	// resp, err := http.Get(url)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to fetch location areas: %w", err)
+	// }
+	// defer resp.Body.Close()
 
-	body, err := io.ReadAll(resp.Body)
+	// body, err := io.ReadAll(resp.Body)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to read response body: %w", err)
+	// }
+
+	// var locationData pokeapi.LocationAreaResponse
+	// err = json.Unmarshal(body, &locationData)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to parse JSON: %w", err)
+	// }
+
+	// for _, area := range locationData.Results {
+	// 	fmt.Println(area.Name)
+	// }
+
+	data, err := pokeapi.GetLocationAreas(cfg.Cache, url)
 	if err != nil {
-		return fmt.Errorf("failed to read response body: %w", err)
+		return err
 	}
 
-	var locationData LocationAreaResponse
-	err = json.Unmarshal(body, &locationData)
-	if err != nil {
-		return fmt.Errorf("failed to parse JSON: %w", err)
-	}
+	cfg.NextLocationAreaURL = data.Next
+	cfg.PreviousLocationAreaURL = data.Previous
 
-	for _, area := range locationData.Results {
+	for _, area := range data.Results {
 		fmt.Println(area.Name)
 	}
-
-	// Update pagination state again
-	cfg.NextLocationAreaURL = locationData.Next
-	cfg.PreviousLocationAreaURL = locationData.Previous
 
 	return nil
 }
