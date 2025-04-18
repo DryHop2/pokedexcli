@@ -6,7 +6,7 @@ import (
 	"github.com/DryHop2/pokedexcli/internal/pokeapi"
 )
 
-func commandMap(cfg *Config) error {
+func commandMap(cfg *Config, args []string) error {
 	url := "https://pokeapi.co/api/v2/location-area/"
 	if cfg.NextLocationAreaURL != nil {
 		url = *cfg.NextLocationAreaURL
@@ -48,7 +48,7 @@ func commandMap(cfg *Config) error {
 	return nil
 }
 
-func commandMapb(cfg *Config) error {
+func commandMapb(cfg *Config, args []string) error {
 	if cfg.PreviousLocationAreaURL == nil {
 		fmt.Println("You're at the beginning of the map — no previous locations.")
 		return nil

@@ -21,6 +21,17 @@ type LocationAreaInfo struct {
 	URL  string `json:"url"`
 }
 
+type PokemonEncounter struct {
+	Pokemon struct {
+		Name string `json:"name"`
+		URL  string `json:"url"`
+	} `json:"Pokemon"`
+}
+
+type LocationArea struct {
+	PokemonEncounters []PokemonEncounter `json:"pokemon_encounters"`
+}
+
 func GetLocationAreas(cache *pokecache.Cache, url string) (LocationAreaResponse, error) {
 	var data LocationAreaResponse
 
@@ -51,4 +62,34 @@ func GetLocationAreas(cache *pokecache.Cache, url string) (LocationAreaResponse,
 	}
 
 	return data, nil
+}
+
+func GetLocationArea(cache *pokecache.Cache, url string) (LocationArea, error) {
+	cachedData, ok := cache.Get(url)
+	if ok {
+		var data LocationArea
+		if err := json.Unmarshal(cachedData, &data); err == nil {
+			return data, nil
+		}
+	}
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return LocationArea{}, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return LocationArea{}, err
+	}
+
+	cache.Add(url, body)
+
+	var result LocationArea
+	if err := json.Unmarshal(body, &result); err != nil {
+		return LocationArea{}, err
+	}
+
+	return result, nil
 }
