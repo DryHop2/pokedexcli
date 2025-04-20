@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
-	"time"
 
 	"github.com/DryHop2/pokedexcli/internal/pokeapi"
 )
@@ -22,17 +21,29 @@ func commandCatch(cfg *Config, args []string) error {
 		return fmt.Errorf("failed to fetch Pokemon data: %w", err)
 	}
 
-	rand.Seed(time.Now().UnixNano())
-	catchThreshold := pokemon.BaseExperience
+	// rand.Seed(time.Now().UnixNano())
+	// catchThreshold := pokemon.BaseExperience
+
+	difficulty := pokemon.BaseExperience
+	if difficulty > 90 {
+		difficulty = 90
+	}
 	chance := rand.Intn(100)
 
-	if chance < catchThreshold {
-		fmt.Printf("%s escaped!\n", pokemonName)
-		return nil
+	if chance < 100-difficulty {
+		fmt.Printf("%s was caught!\n", pokemonName)
+		cfg.Pokedex[pokemon.Name] = pokemon
+	} else {
+		fmt.Printf("%s escaped !\n", pokemonName)
 	}
 
-	fmt.Printf("%s was caught!\n", pokemonName)
-	cfg.Pokedex[pokemon.Name] = pokemon
+	// if chance < catchThreshold {
+	// 	fmt.Printf("%s escaped!\n", pokemonName)
+	// 	return nil
+	// }
+
+	// fmt.Printf("%s was caught!\n", pokemonName)
+	// cfg.Pokedex[pokemon.Name] = pokemon
 
 	return nil
 }
