@@ -25,12 +25,15 @@ func commandCatch(cfg *Config, args []string) error {
 	// catchThreshold := pokemon.BaseExperience
 
 	difficulty := pokemon.BaseExperience
-	if difficulty > 90 {
-		difficulty = 90
+	catchChance := 100 - (difficulty / 2)
+
+	if catchChance < 5 {
+		catchChance = 5
 	}
+
 	chance := rand.Intn(100)
 
-	if chance < 100-difficulty {
+	if chance < catchChance {
 		fmt.Printf("%s was caught!\n", pokemonName)
 		cfg.Pokedex[pokemon.Name] = pokemon
 	} else {
